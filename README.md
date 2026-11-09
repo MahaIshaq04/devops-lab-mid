@@ -27,26 +27,23 @@ The runner executes HTTP integration tests against temporary SQLite databases. I
 In a separate PowerShell terminal, leave this running:
 
 ```powershell
-$env:REPORT_TOKEN = 'choose-a-long-random-token'
 python receiver.py
 ```
 
-Reports are automatically saved to `received/test-report.json` (configure an absolute `REPORT_OUTPUT` path to save elsewhere). The default loopback endpoint is http://127.0.0.1:9000/reports. Run `python scripts/send_report.py` after tests to verify delivery, using the same `REPORT_TOKEN`. Delivery retries and fails visibly if the receiver is unavailable. The newest report atomically replaces the previous report.
+Reports are automatically saved to `received/test-report.json` (configure an absolute `REPORT_OUTPUT` path to save elsewhere). The default loopback endpoint is http://127.0.0.1:9000/reports. Run `python scripts/send_report.py` after tests to verify delivery, using the same token if authentication is enabled. Delivery retries and fails visibly if the receiver is unavailable. The newest report atomically replaces the previous report.
 
 ## GitHub repository and CI setup
 
-1. Create a GitHub repository and upload/push this project. From this folder:
+1. The repository is connected. To commit and push changes from this folder:
 
    ```powershell
-   git init -b main
    git add .
    git commit -m "Implement DevOps lab portal and test reporting"
-   git remote add origin https://github.com/MahaIshaq04/devops-lab-mid.git
    git push -u origin main
    ```
 
 2. In repository **Settings → Actions → Runners → New self-hosted runner**, select your operating system. Download and configure the runner in a separate directory using GitHub's generated commands. Add the custom label `lab-mid` during configuration, then start the runner (`.\run.cmd` on Windows). Ensure `python` is on the runner's PATH. Use a trusted repository: a self-hosted runner executes repository code on your computer.
-3. Add repository Actions secret `REPORT_TOKEN` matching the receiver's environment. Optionally set Actions variable `REPORT_RECEIVER_URL` to your endpoint; when omitted it defaults to the loopback URL above. Keep the receiver and runner running on the same computer, with the receiver outside the runner checkout directory.
+3. The receiver binds to localhost. Optional authentication: set `REPORT_TOKEN` in the receiver environment and add the matching repository Actions secret `REPORT_TOKEN`. Optionally set Actions variable `REPORT_RECEIVER_URL` to your endpoint; when omitted it defaults to the loopback URL above. Keep the receiver and runner running on the same computer, with the receiver outside the runner checkout directory.
 4. Push a change. The workflow checks out that exact pushed revision and runs its tests. Report delivery and report artifact steps use `always()` so they also execute after test failures. A report delivery error fails the job. GitHub-hosted runner localhost is not your computer; this project deliberately uses a local self-hosted runner for tests.
 
 ## Required passing → failing → corrected demonstration
@@ -59,6 +56,18 @@ Reports are automatically saved to `received/test-report.json` (configure an abs
 
 - Portal, required tests, CI configuration and local report receiver: supplied.
 - GitHub repository URL: https://github.com/MahaIshaq04/devops-lab-mid
-- Passing, failing, corrected GitHub Actions screenshots and matching automatically received JSON: collect using the demonstration steps.
+- Completed GitHub demonstration: see the run links and automatically received reports below.
 
-GitHub push demonstrations and runner registration remain to be completed. Optional bonus deployment and email are outside this minimal implementation.
+The local runner is registered as `Maha-LabMid` with label `lab-mid`. All three required GitHub demonstrations completed, and each report was automatically delivered to the local receiver. Optional bonus deployment and email are outside this minimal implementation.
+
+## Completed demonstration evidence
+
+| Demonstration | GitHub Actions run | Actual received report | Result |
+| --- | --- | --- | --- |
+| Passing | [42604085717](https://github.com/MahaIshaq04/devops-lab-mid/actions/runs/42604085717) | [passing.json](evidence/passing.json) | 3 passed, 0 failed |
+| Deliberate defect | [42604980012](https://github.com/MahaIshaq04/devops-lab-mid/actions/runs/42604980012) | [failing.json](evidence/failing.json) | 2 passed, 1 failed |
+| Corrected | [42605166064](https://github.com/MahaIshaq04/devops-lab-mid/actions/runs/42605166064) | [corrected.json](evidence/corrected.json) | 3 passed, 0 failed |
+
+These evidence copies were preserved after verifying automatic HTTP delivery to `received/test-report.json`; no artifact download or manual copying was used to deliver the reports to the receiver. Each report identifies its actual tested commit and run.
+
+For another demonstration, keep both background processes running. After a restart, start `python receiver.py` and run `actions-runner\run.cmd` from its directory.

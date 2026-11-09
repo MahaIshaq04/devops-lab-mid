@@ -1,0 +1,30 @@
+{
+  "repository": "MahaIshaq04/devops-lab-mid",
+  "branch": "main",
+  "commit_sha": "901eb647d35e24a2fd613ccfa7a2ae36aee89176",
+  "pipeline_run_id": "42604980012",
+  "run_attempt": "1",
+  "execution_timestamp": "2026-11-09T10:57:05.275417+00:00",
+  "tests": [
+    {
+      "name": "tests.test_portal.PortalTests.test_invalid_url_is_rejected_and_not_saved",
+      "result": "passed",
+      "failure_message": null
+    },
+    {
+      "name": "tests.test_portal.PortalTests.test_missing_registration_is_rejected",
+      "result": "passed",
+      "failure_message": null
+    },
+    {
+      "name": "tests.test_portal.PortalTests.test_valid_submission_is_saved_and_listed",
+      "result": "failed",
+      "failure_message": "Traceback (most recent call last):\n  File \"C:\\Users\\user\\OneDrive\\Desktop\\devops lab mid\\actions-runner\\_work\\devops-lab-mid\\devops-lab-mid\\tests\\test_portal.py\", line 42, in test_valid_submission_is_saved_and_listed\n    self.assertEqual(status, 201)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: 400 != 201\n"
+    }
+  ],
+  "total": 3,
+  "passed": 2,
+  "failed": 1,
+  "skipped": 0,
+  "overall_status": "failed"
+}

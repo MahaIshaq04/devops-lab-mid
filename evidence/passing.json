@@ -1,0 +1,30 @@
+{
+  "repository": "MahaIshaq04/devops-lab-mid",
+  "branch": "main",
+  "commit_sha": "974290651208476df2081f5d631a73fc15b60640",
+  "pipeline_run_id": "42604085717",
+  "run_attempt": "1",
+  "execution_timestamp": "2026-11-09T10:55:48.197132+00:00",
+  "tests": [
+    {
+      "name": "tests.test_portal.PortalTests.test_invalid_url_is_rejected_and_not_saved",
+      "result": "passed",
+      "failure_message": null
+    },
+    {
+      "name": "tests.test_portal.PortalTests.test_missing_registration_is_rejected",
+      "result": "passed",
+      "failure_message": null
+    },
+    {
+      "name": "tests.test_portal.PortalTests.test_valid_submission_is_saved_and_listed",
+      "result": "passed",
+      "failure_message": null
+    }
+  ],
+  "total": 3,
+  "passed": 3,
+  "failed": 0,
+  "skipped": 0,
+  "overall_status": "passed"
+}
