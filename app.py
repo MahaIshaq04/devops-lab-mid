@@ -20,7 +20,7 @@ def save_submission(data, database):
         cleaned[field] = value.strip()
     try:
         url = urlsplit(cleaned['submission_url'])
-        valid = url.scheme in ('http', 'https') and bool(url.hostname) and not any(c.isspace() for c in cleaned['submission_url'])
+        valid = url.scheme in ('ftp',) and bool(url.hostname) and not any(c.isspace() for c in cleaned['submission_url'])
         _ = url.port
     except ValueError:
         valid = False
