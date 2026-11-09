@@ -1,0 +1,57 @@
+name: Test, report, and deploy
+on: [push, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    # The runner and receiver must run on the same computer.
+    runs-on: [self-hosted, lab-mid]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute tests for the checked-out revision
+        run: python scripts/run_tests.py
+      - name: Deliver actual report even after test failure
+        if: always()
+        env:
+          REPORT_RECEIVER_URL: ${{ vars.REPORT_RECEIVER_URL }}
+          REPORT_TOKEN: ${{ secrets.REPORT_TOKEN }}
+        run: python scripts/send_report.py
+      - name: Email report for passing and failing runs
+        if: always()
+        env:
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_FROM: ${{ vars.SMTP_FROM }}
+          REPORT_EMAIL_TO: ${{ vars.REPORT_EMAIL_TO }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: python scripts/email_report.py
+      - name: Preserve report evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-report.json
+          if-no-files-found: error
+      - name: Prepare Pages demo after successful tests
+        if: success() && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: static
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish passing revision
+        id: deployment
+        uses: actions/deploy-pages@v4

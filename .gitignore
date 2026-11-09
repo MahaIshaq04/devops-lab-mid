@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.db
+.env
+received/
+test-report.json
+.venv/
+actions-runner/

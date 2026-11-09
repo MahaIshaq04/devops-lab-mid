@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assignment submission portal</title>
+<style>body{font:16px system-ui;margin:40px auto;padding:0 20px;max-width:850px;background:#f1f5f9;color:#172554}form,article{background:white;padding:24px;border-radius:12px;margin:16px 0}label{display:block;margin:12px 0}input{display:block;box-sizing:border-box;width:100%;padding:12px;border:1px solid #94a3b8;border-radius:6px}button{background:#1d4ed8;color:white;border:0;padding:12px 22px;border-radius:6px;cursor:pointer}#message{white-space:pre-wrap}a{overflow-wrap:anywhere}</style>
+<h1>Assignment submission portal</h1><p id="mode">Submit your work and review saved submissions.</p>
+<form id="form"><label>Student name<input name="name" required></label><label>Registration number<input name="registration_number" required></label><label>Assignment title<input name="assignment_title" required></label><label>Submission URL<input name="submission_url" type="url" required placeholder="https://github.com/student/assignment"></label><button>Save submission</button></form>
+<p id="message" role="status" aria-live="polite"></p><h2>Saved submissions</h2><section id="list"></section>
+<script>
+const demo=location.hostname.endsWith('.github.io')||location.protocol==='file:';
+const form=document.querySelector('form'), message=document.querySelector('#message');
+if(demo)document.querySelector('#mode').textContent='Static demo: submissions are stored in this browser only.';
+function localRows(){return JSON.parse(localStorage.getItem('submissions')||'[]')}
+async function render(){try{const rows=demo?localRows():await (await fetch('/api/submissions')).json();const list=document.querySelector('#list');list.replaceChildren();if(!rows.length)list.textContent='No submissions yet.';for(const row of rows){const card=document.createElement('article');const title=document.createElement('h3');title.textContent=row.assignment_title;const student=document.createElement('p');student.textContent=row.name+' · '+row.registration_number;const link=document.createElement('a');link.textContent=row.submission_url;link.href=row.submission_url;link.rel='noopener noreferrer';link.target='_blank';card.append(title,student,link);list.append(card)}}catch(e){message.textContent='Unable to load submissions: '+e.message}}
+form.onsubmit=async event=>{event.preventDefault();try{const data=Object.fromEntries(new FormData(form));for(const key in data){data[key]=data[key].trim();if(!data[key])throw Error(key.replaceAll('_',' ')+' is required.')}const url=new URL(data.submission_url);if(!['http:','https:'].includes(url.protocol)||/\s/.test(data.submission_url))throw Error('Enter a valid HTTP or HTTPS URL.');if(demo){const rows=localRows();rows.unshift(data);localStorage.setItem('submissions',JSON.stringify(rows))}else{const response=await fetch('/api/submissions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(result.error)}message.textContent='Submission saved.';form.reset();await render()}catch(e){message.textContent=e.message}};
+render();
+</script></html>
